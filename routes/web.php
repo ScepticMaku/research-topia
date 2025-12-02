@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+
+Route::get('/auth/{provider}/redirect', [AuthController::class, 'redirect'])->name('auth.redirect');
+Route::get('/auth/{provider}/callback', [AuthController::class, 'callback']);
 
 Route::get('/', function () {
     return Inertia::render('welcome', [

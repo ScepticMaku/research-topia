@@ -1,6 +1,6 @@
 import { login } from '@/routes';
 import { store } from '@/routes/register';
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, Link } from '@inertiajs/react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -99,6 +99,7 @@ export default function Register() {
                                 {processing && <Spinner />}
                                 Create account
                             </Button>
+
                         </div>
 
                         <div className="text-center text-sm text-muted-foreground">
@@ -110,6 +111,6 @@ export default function Register() {
                     </>
                 )}
             </Form>
-        </AuthLayout>
+        </AuthLayout >
     );
 }

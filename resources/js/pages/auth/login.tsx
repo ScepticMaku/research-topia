@@ -96,6 +96,25 @@ export default function Login({
                                 {processing && <Spinner />}
                                 Log in
                             </Button>
+
+                            <Button
+                                variant="outline"
+                                type="button"
+                            >
+                                <a href={route('auth.redirect', 'github')}>
+                                    Continue with GitHub
+                                </a>
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                type="button"
+                            >
+                                <a href={route('auth.redirect', 'google')}>
+                                    Continue with Google
+                                </a>
+                            </Button>
+
                         </div>
 
                         {canRegister && (

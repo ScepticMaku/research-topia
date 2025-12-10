@@ -2,7 +2,17 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
 import { SearchForm } from './search-form';
-import { AArrowUp, AArrowDown, ChevronDown, CalendarArrowUp, CalendarArrowDown } from "lucide-react"
+import { AArrowUp, AArrowDown, ChevronDown, CalendarArrowUp, CalendarArrowDown, Plus } from "lucide-react"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogFooter,
+    DialogClose,
+} from "@/components/ui/dialog"
 import {
     Select,
     SelectContent,
@@ -15,6 +25,8 @@ import {
     ButtonGroup,
     ButtonGroupSeparator,
 } from "@/components/ui/button-group"
+import { Input } from './ui/input';
+import { Separator } from './ui/separator';
 
 export function AppSidebarHeader({
     breadcrumbs = [],
@@ -29,24 +41,42 @@ export function AppSidebarHeader({
             </div>
             <div className="flex items-center gap-2">
                 <Select>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[160px] cursor-pointer">
                         <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="light"><CalendarArrowUp />Date (asc)</SelectItem>
-                        <SelectItem value="dark"><CalendarArrowDown />Date (desc)</SelectItem>
-                        <SelectItem value="system"><AArrowUp />Name (asc)</SelectItem>
-                        <SelectItem value="system"><AArrowDown />Name (desc)</SelectItem>
+                        <SelectItem value="dateAsc"><CalendarArrowUp />Date (asc)</SelectItem>
+                        <SelectItem value="dateDesc"><CalendarArrowDown />Date (desc)</SelectItem>
+                        <SelectItem value="nameAsc"><AArrowUp />Name (asc)</SelectItem>
+                        <SelectItem value="nameDesc"><AArrowDown />Name (desc)</SelectItem>
                     </SelectContent>
                 </Select>
                 <SearchForm />
-                <ButtonGroup>
-                    <Button variant="secondary">Add</Button>
-                    <ButtonGroupSeparator />
-                    <Button size="icon" variant="secondary">
-                        <ChevronDown />
-                    </Button>
-                </ButtonGroup>
+                <Dialog>
+                    <DialogTrigger>
+                        <Button className="w-20 cursor-pointer" ><Plus />Add</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Add a research item:</DialogTitle>
+                        </DialogHeader>
+                        <div>
+                            <DialogDescription>URL:</DialogDescription>
+                            <Input type="text" placeholder="https://" />
+                        </div>
+                        <Separator />
+                        <div>
+                            <DialogDescription>or upload a file:</DialogDescription>
+                            <Input type="file" />
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+                            <Button>Submit</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </header>
     );

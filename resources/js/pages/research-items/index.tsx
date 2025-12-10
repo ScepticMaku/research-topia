@@ -31,7 +31,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
-import { FileX } from 'lucide-react';
+import { SquarePen, Trash2, Eye, FileX, LibraryBig } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -212,9 +212,14 @@ export default function Index() {
                                     <ItemTitle>{item.note}</ItemTitle>
                                     <ItemTitle>{item.tags.name}</ItemTitle>
                                 </ItemContent>
+                                <div className="flex gap-4">
+                                    <Button variant="ghost" className="cursor-pointer"><Eye className="size-5" /></Button>
+                                    <Button variant="ghost" className="cursor-pointer"><SquarePen className="size-5" /></Button>
+                                    <Button variant="ghost" className="cursor-pointer"><Trash2 className="size-5" /></Button>
+                                </div>
                                 <ItemFooter>
                                     <div className="flex h-2 items-center space-x-4 ">
-                                        <ItemDescription>{item.research_info.category_name}</ItemDescription>
+                                        <ItemDescription className="flex"><LibraryBig className="size-5 mr-2" /> {item.research_info.category_name}</ItemDescription>
                                         <Separator orientation="vertical" />
                                         <ItemDescription>{item.research_info.website}</ItemDescription>
                                         <Separator orientation="vertical" />

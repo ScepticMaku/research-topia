@@ -1,5 +1,7 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
+import { NavFilters } from '@/components/nav-filters';
+import { NavTags } from '@/components/nav-tags';
+
 import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
@@ -10,17 +12,23 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
+import { type NavItem, } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Bookmark, BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { Bookmark, BookOpen, Folder, LayoutGrid, TestTube } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'All Bookmarks',
-        href: '/bookmarks',
+        title: 'All Research Items',
+        href: '/research-items',
         icon: Bookmark,
     },
+];
+
+const filterNavItems: NavItem[] = [
+];
+
+const tagsNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
@@ -30,7 +38,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={route('bookmarks')} prefetch>
+                            <Link href={route('research-items')} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -40,6 +48,8 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} />
+                <NavFilters items={filterNavItems} />
+                <NavTags items={tagsNavItems} />
             </SidebarContent>
 
             <SidebarFooter>

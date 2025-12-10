@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\ResearchItemController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,11 +17,11 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('bookmarks', function () {
-        return Inertia::render('bookmarks/index');
-    })->name('bookmarks');
+    Route::get('research-items', function () {
+        return Inertia::render('research-items/index');
+    })->name('research-items');
 
-    Route::resource('bookmark', BookmarkController::class);
+    Route::resource('research-item', ResearchItemController::class);
 });
 
 require __DIR__.'/settings.php';

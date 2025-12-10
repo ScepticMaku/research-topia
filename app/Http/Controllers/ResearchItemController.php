@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class BookmarkController extends Controller
+class ResearchItemController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('bookmarks/index');
+        return Inertia::render('research-items/index');
     }
 
     /**

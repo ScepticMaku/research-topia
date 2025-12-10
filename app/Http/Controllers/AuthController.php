@@ -38,6 +38,6 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('bookmarks'));
+        return redirect(route('research-items'));
     }
 }

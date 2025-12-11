@@ -11,14 +11,14 @@ import { Link, usePage } from '@inertiajs/react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 
-export function NavTags({ items = [] }: { items: NavItem[] }) {
+export function NavCategories({ items = [] }: { items: NavItem[] }) {
     const page = usePage();
     return (
         <Collapsible defaultOpen className="group/collapsible">
             <SidebarGroup className="px-2 py-0">
                 <SidebarGroupLabel asChild>
                     <CollapsibleTrigger>
-                        Tags
+                        Categories
                         <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
                     </CollapsibleTrigger>
                 </SidebarGroupLabel>

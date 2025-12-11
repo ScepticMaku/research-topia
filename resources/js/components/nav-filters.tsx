@@ -8,30 +8,39 @@ import {
 import { resolveUrl } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { ChevronDown } from 'lucide-react';
 
 export function NavFilters({ items = [] }: { items: NavItem[] }) {
     const page = usePage();
     return (
-        <SidebarGroup className="px-2 py-0">
-            <SidebarGroupLabel>Filters</SidebarGroupLabel>
-            <SidebarMenu>
-                {items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton
-                            asChild
-                            isActive={page.url.startsWith(
-                                resolveUrl(item.href),
-                            )}
-                            tooltip={{ children: item.title }}
-                        >
-                            <Link href={item.href} prefetch>
-                                {item.icon && <item.icon />}
-                                <span>{item.title}</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
-        </SidebarGroup>
+        <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroup className="px-2 py-0">
+                <SidebarGroupLabel asChild>
+                    <CollapsibleTrigger>
+                        Filters
+                        <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    </CollapsibleTrigger>
+                </SidebarGroupLabel>
+                <CollapsibleContent>
+                    {items.map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton
+                                asChild
+                                isActive={page.url.startsWith(
+                                    resolveUrl(item.href),
+                                )}
+                                tooltip={{ children: item.title }}
+                            >
+                                <Link href={item.href} prefetch>
+                                    {item.icon && <item.icon />}
+                                    <span>{item.title}</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                </CollapsibleContent>
+            </SidebarGroup>
+        </Collapsible>
     );
 }

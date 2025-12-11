@@ -4,6 +4,22 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
+import {
     Item,
     ItemActions,
     ItemContent,
@@ -13,7 +29,6 @@ import {
     ItemMedia,
     ItemTitle,
 } from "@/components/ui/item"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
     Empty,
     EmptyContent,
@@ -23,6 +38,22 @@ import {
     EmptyTitle,
 } from "@/components/ui/empty"
 import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuSeparator,
+    ContextMenuTrigger,
+} from "@/components/ui/context-menu"
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet"
+import {
     Pagination,
     PaginationContent,
     PaginationEllipsis,
@@ -31,7 +62,10 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
-import { SquarePen, Trash2, Eye, FileX, LibraryBig } from 'lucide-react';
+import { Album, SquarePen, Trash2, Eye, FileX, LibraryBig, Search, Star } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -75,7 +109,7 @@ export default function Index() {
                 name: 'test',
             },
             research_info: {
-                category_name: 'test',
+                category_name: 'Unsorted',
                 website: 'test',
                 date_created: 'test'
             }
@@ -205,29 +239,135 @@ export default function Index() {
             <div className="grid h-full">
                 {researchItem.map(item =>
                     <div className="m-2">
-                        <Item variant="outline" asChild>
-                            <a href="#">
-                                <ItemHeader>{item.title}</ItemHeader>
-                                <ItemContent>
-                                    <ItemTitle>{item.note}</ItemTitle>
-                                    <ItemTitle>{item.tags.name}</ItemTitle>
-                                </ItemContent>
-                                <div className="flex gap-4">
-                                    <Button variant="ghost" className="cursor-pointer"><Eye className="size-5" /></Button>
-                                    <Button variant="ghost" className="cursor-pointer"><SquarePen className="size-5" /></Button>
-                                    <Button variant="ghost" className="cursor-pointer"><Trash2 className="size-5" /></Button>
-                                </div>
-                                <ItemFooter>
-                                    <div className="flex h-2 items-center space-x-4 ">
-                                        <ItemDescription className="flex"><LibraryBig className="size-5 mr-2" /> {item.research_info.category_name}</ItemDescription>
-                                        <Separator orientation="vertical" />
-                                        <ItemDescription>{item.research_info.website}</ItemDescription>
-                                        <Separator orientation="vertical" />
-                                        <ItemDescription>{item.research_info.date_created}</ItemDescription>
-                                    </div>
-                                </ItemFooter>
-                            </a>
-                        </Item>
+                        <ContextMenu>
+                            <ContextMenuTrigger>
+                                <Item variant="outline" asChild>
+                                    <a href="#">
+                                        <ItemHeader>{item.title}</ItemHeader>
+                                        <ItemContent>
+                                            <ItemTitle>{item.note}</ItemTitle>
+                                            <ItemTitle>{item.tags.name}</ItemTitle>
+                                        </ItemContent>
+                                        <div className="flex gap-4">
+                                            <Sheet>
+                                                <SheetTrigger>
+                                                    <Button variant="ghost" className="cursor-pointer"><Eye className="size-5" /></Button>
+                                                </SheetTrigger>
+                                                <SheetContent>
+                                                    <SheetHeader>
+                                                        <SheetTitle>This is where the document webview will show up</SheetTitle>
+                                                    </SheetHeader>
+                                                </SheetContent>
+                                            </Sheet>
+                                            <Sheet>
+                                                <SheetTrigger>
+                                                    <Button variant="ghost" className="cursor-pointer"><SquarePen className="size-5" /></Button>
+                                                </SheetTrigger>
+                                                <SheetContent>
+                                                    <SheetHeader>Edit research item</SheetHeader>
+                                                    <div className="m-4 grid gap-4">
+                                                        <div>
+                                                            <SheetDescription>Title</SheetDescription>
+                                                            <Input className="mt-2" type="text" value="title" placeholder="Research item title here..." />
+                                                        </div>
+                                                        <div>
+                                                            <SheetDescription>Description</SheetDescription>
+                                                            <Input className="mt-2" type="text" placeholder="Enter description..." />
+                                                        </div>
+                                                        <div>
+                                                            <SheetDescription>Note</SheetDescription>
+                                                            <Textarea className="mt-2"></Textarea>
+                                                        </div>
+                                                        <div>
+                                                            <SheetDescription>Category</SheetDescription>
+                                                            <Dialog>
+                                                                <DialogTrigger>
+                                                                    <Select>
+                                                                        <SelectTrigger className="w-[161px] cursor-pointer">
+                                                                            <SelectValue placeholder="Sort by" />
+                                                                        </SelectTrigger>
+                                                                    </Select>
+                                                                </DialogTrigger>
+                                                                <DialogContent>
+                                                                    <DialogHeader>
+                                                                        <DialogTitle>Select Category</DialogTitle>
+                                                                        <div className="mt-4 relative">
+                                                                            <Label htmlFor="search" className="sr-only">
+                                                                                Search
+                                                                            </Label>
+                                                                            <Input
+                                                                                id="search"
+                                                                                type="text"
+                                                                                placeholder="Type to search..."
+                                                                                className="h-8 pl-7"
+                                                                            />
+                                                                            <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
+                                                                        </div>
+                                                                        <Item asChild>
+                                                                            <a href="#">
+                                                                                <ItemMedia>
+                                                                                    <LibraryBig className="size-5" />
+                                                                                </ItemMedia>
+                                                                                <ItemContent>
+                                                                                    <ItemTitle>Unsorted</ItemTitle>
+                                                                                </ItemContent>
+                                                                            </a>
+                                                                        </Item>
+                                                                        <ItemDescription>Categories</ItemDescription>
+                                                                        <Item asChild>
+                                                                            <a href="#">
+                                                                                <ItemMedia>
+                                                                                    <Album className="size-5" />
+                                                                                </ItemMedia>
+                                                                                <ItemContent>
+                                                                                    <ItemTitle>Category</ItemTitle>
+                                                                                </ItemContent>
+                                                                            </a>
+                                                                        </Item>
+                                                                    </DialogHeader>
+                                                                </DialogContent>
+                                                            </Dialog>
+                                                        </div>
+                                                        <div>
+                                                            <SheetDescription>Tags</SheetDescription>
+                                                            <Input type="text" placeholder="Add tags..." />
+                                                        </div>
+                                                        <div>
+                                                            <SheetDescription>URL</SheetDescription>
+                                                            <Input type="text" placeholder="https://..." />
+                                                        </div>
+                                                        <SheetDescription>Saved (Date & Time)</SheetDescription>
+                                                    </div>
+                                                    <SheetFooter>
+                                                        <Button variant="secondary"><Star /> Add to favorites</Button>
+                                                        <Button variant="destructive">Delete</Button>
+                                                    </SheetFooter>
+                                                </SheetContent>
+                                            </Sheet>
+                                            <Button variant="ghost" className="cursor-pointer"><Trash2 className="size-5" /></Button>
+                                        </div>
+                                        <ItemFooter>
+                                            <div className="flex h-2 items-center space-x-4 ">
+                                                <ItemDescription className="flex"><LibraryBig className="size-5 mr-2" /> {item.research_info.category_name}</ItemDescription>
+                                                <Separator orientation="vertical" />
+                                                <ItemDescription>{item.research_info.website}</ItemDescription>
+                                                <Separator orientation="vertical" />
+                                                <ItemDescription>{item.research_info.date_created}</ItemDescription>
+                                            </div>
+                                        </ItemFooter>
+                                    </a>
+                                </Item>
+                            </ContextMenuTrigger>
+                            <ContextMenuContent>
+                                <ContextMenuItem>Open in new tab</ContextMenuItem>
+                                <ContextMenuItem>Copy link to clipboard</ContextMenuItem>
+                                <ContextMenuSeparator />
+                                <ContextMenuItem>Add to favorites</ContextMenuItem>
+                                <ContextMenuSeparator />
+                                <ContextMenuItem>Edit</ContextMenuItem>
+                                <ContextMenuItem>Delete</ContextMenuItem>
+                            </ContextMenuContent>
+                        </ContextMenu>
                     </div>
                 )}
             </div>
@@ -248,6 +388,6 @@ export default function Index() {
                     </PaginationItem>
                 </PaginationContent>
             </Pagination>
-        </AppLayout>
+        </AppLayout >
     );
 }

@@ -62,12 +62,12 @@ export function AppSidebarHeader({
                         </DialogHeader>
                         <div>
                             <DialogDescription>URL:</DialogDescription>
-                            <Input type="text" placeholder="https://" />
+                            <Input className="mt-1" type="text" placeholder="https://" />
                         </div>
                         <Separator />
                         <div>
-                            <DialogDescription>or upload a file:</DialogDescription>
-                            <Input type="file" />
+                            <DialogDescription>or Upload a file:</DialogDescription>
+                            <Input className="mt-1" type="file" />
                         </div>
                         <DialogFooter>
                             <DialogClose asChild>

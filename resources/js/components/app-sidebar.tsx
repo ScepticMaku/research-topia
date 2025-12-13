@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavItem, } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Bookmark, Layers, LibraryBig, BookOpen, Folder, LayoutGrid, TestTube, Star, FileText, Link2, BookmarkX, Tag } from 'lucide-react';
+import { Bookmark, Layers, LibraryBig, BookOpen, Folder, LayoutGrid, TestTube, Star, FileText, Link2, BookmarkX, Tag, NotebookPen } from 'lucide-react';
 import AppLogo from './app-logo';
 import { NavCategories } from './nav-categories';
 
@@ -53,6 +53,11 @@ const filterNavItems: NavItem[] = [
         title: 'Links',
         href: '/links-link',
         icon: Link2
+    },
+    {
+        title: 'Notes',
+        href: '/notes-link',
+        icon: NotebookPen
     },
     {
         title: 'No Tags',

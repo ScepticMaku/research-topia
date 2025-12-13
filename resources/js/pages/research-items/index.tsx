@@ -243,7 +243,7 @@ export default function Index() {
                             <ContextMenuTrigger>
                                 <Item variant="outline" asChild>
                                     <a href="#">
-                                        <ItemHeader>{item.title}</ItemHeader>
+                                        <ItemHeader><strong>{item.title}</strong></ItemHeader>
                                         <ItemContent>
                                             <ItemTitle>{item.note}</ItemTitle>
                                             <ItemTitle>{item.tags.name}</ItemTitle>

@@ -27,12 +27,24 @@ import {
 } from "@/components/ui/button-group"
 import { Input } from './ui/input';
 import { Separator } from './ui/separator';
+import { useForm } from '@inertiajs/react';
+import InputError from './input-error';
 
 export function AppSidebarHeader({
     breadcrumbs = [],
 }: {
     breadcrumbs?: BreadcrumbItemType[];
 }) {
+
+    const { data, setData, post, errors } = useForm({
+        url: '',
+    })
+
+    const submitUrl = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(route('research-item.store'));
+    }
+
     return (
         <header className="flex justify-between h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/50 px-6 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4">
             <div className="flex items-center gap-2">
@@ -57,24 +69,35 @@ export function AppSidebarHeader({
                         <Button className="w-20 cursor-pointer" ><Plus />Add</Button>
                     </DialogTrigger>
                     <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Add a research item:</DialogTitle>
-                        </DialogHeader>
-                        <div>
-                            <DialogDescription>URL:</DialogDescription>
-                            <Input className="mt-1" type="text" placeholder="https://" />
-                        </div>
-                        <Separator />
-                        <div>
-                            <DialogDescription>or Upload a file:</DialogDescription>
-                            <Input className="mt-1" type="file" />
-                        </div>
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-                            <Button>Submit</Button>
-                        </DialogFooter>
+                        <form onSubmit={submitUrl}>
+                            <DialogHeader>
+                                <DialogTitle>Add a research item:</DialogTitle>
+                            </DialogHeader>
+                            <div className="mt-4">
+                                <DialogDescription>URL:</DialogDescription>
+                                <Input className="mt-1"
+                                    type="text"
+                                    placeholder="https://"
+                                    value={data.url} onChange={(e) => setData('url', e.target.value)}
+                                />
+                                <InputError
+                                    message={errors.url}
+                                />
+                            </div>
+                            <Separator />
+                            <div>
+                                <DialogDescription>or Upload a file:</DialogDescription>
+                                <Input className="mt-1" type="file" />
+                            </div>
+                            <DialogFooter className="mt-4">
+                                <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                </DialogClose>
+                                <DialogClose asChild>
+                                    <Button type="submit" className="cursor-pointer">Submit</Button>
+                                </DialogClose>
+                            </DialogFooter>
+                        </form>
                     </DialogContent>
                 </Dialog>
             </div>

@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Separator } from "@/components/ui/separator"
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { usePage, Head } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -74,149 +74,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index() {
+export default function Index({ researchItems }: any) {
 
-    type researchItems = {
-        title: string;
-        note: string;
-        tags: {
-            name: string
-        };
-        research_info: {
-            category_name: string;
-            website: string;
-            date_created: string;
-        };
-    };
+    console.log(researchItems);
 
-    const researchItem: researchItems[] = [
-        {
-            title: 'title',
-            note: 'note ',
-            tags: {
-                name: 'tag name',
-            },
-            research_info: {
-                category_name: 'category',
-                website: 'website.com',
-                date_created: 'December 25'
-            }
-        },
-        {
-            title: 'test',
-            note: '',
-            tags: {
-                name: 'test',
-            },
-            research_info: {
-                category_name: 'Unsorted',
-                website: 'test',
-                date_created: 'test'
-            }
-        },
-        {
-            title: 'title',
-            note: 'note ',
-            tags: {
-                name: 'tag name',
-            },
-            research_info: {
-                category_name: 'category',
-                website: 'website.com',
-                date_created: 'December 25'
-            }
-        },
-        {
-            title: 'title',
-            note: 'note ',
-            tags: {
-                name: 'tag name',
-            },
-            research_info: {
-                category_name: 'category',
-                website: 'website.com',
-                date_created: 'December 25'
-            }
-        },
-        {
-            title: 'title',
-            note: 'note ',
-            tags: {
-                name: 'tag name',
-            },
-            research_info: {
-                category_name: 'category',
-                website: 'website.com',
-                date_created: 'December 25'
-            }
-        },
-        {
-            title: 'title',
-            note: 'note ',
-            tags: {
-                name: 'tag name',
-            },
-            research_info: {
-                category_name: 'category',
-                website: 'website.com',
-                date_created: 'December 25'
-            }
-        },
-        {
-            title: 'test',
-            note: '',
-            tags: {
-                name: 'test',
-            },
-            research_info: {
-                category_name: 'test',
-                website: 'test',
-                date_created: 'test'
-            }
-        },
-        {
-            title: 'title',
-            note: 'note ',
-            tags: {
-                name: 'tag name',
-            },
-            research_info: {
-                category_name: 'category',
-                website: 'website.com',
-                date_created: 'December 25'
-            }
-        },
-        {
-            title: 'title',
-            note: 'note ',
-            tags: {
-                name: 'tag name',
-            },
-            research_info: {
-                category_name: 'category',
-                website: 'website.com',
-                date_created: 'December 25'
-            }
-        },
-        {
-            title: 'title',
-            note: 'note ',
-            tags: {
-                name: 'tag name',
-            },
-            research_info: {
-                category_name: 'category',
-                website: 'website.com',
-                date_created: 'December 25'
-            }
-        },
-    ];
+    const items = researchItems ? researchItems : [];
 
-    console.log(researchItem.map(r => r.note));
-
-    const emptyItems = 0;
-
-    if (researchItem.length == 0 || emptyItems) {
+    if (items.length == 0) {
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="All Research Items" />
@@ -237,16 +101,16 @@ export default function Index() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="All Research Items" />
             <div className="grid h-full">
-                {researchItem.map(item =>
+                {items.map(item =>
                     <div className="m-2">
                         <ContextMenu>
                             <ContextMenuTrigger>
                                 <Item variant="outline" asChild>
                                     <a href="#">
-                                        <ItemHeader><strong>{item.title}</strong></ItemHeader>
+                                        <ItemHeader><strong>{item.url.title}</strong></ItemHeader>
                                         <ItemContent>
                                             <ItemTitle>{item.note}</ItemTitle>
-                                            <ItemTitle>{item.tags.name}</ItemTitle>
+                                            <ItemTitle>Tags Placeholder</ItemTitle>
                                         </ItemContent>
                                         <div className="flex gap-4">
                                             <Sheet>
@@ -348,11 +212,11 @@ export default function Index() {
                                         </div>
                                         <ItemFooter>
                                             <div className="flex h-2 items-center space-x-4 ">
-                                                <ItemDescription className="flex"><LibraryBig className="size-5 mr-2" /> {item.research_info.category_name}</ItemDescription>
+                                                <ItemDescription className="flex"><LibraryBig className="size-5 mr-2" />{item.category ? item.category.name : ''}</ItemDescription>
                                                 <Separator orientation="vertical" />
-                                                <ItemDescription>{item.research_info.website}</ItemDescription>
+                                                <ItemDescription>{item.url.url}</ItemDescription>
                                                 <Separator orientation="vertical" />
-                                                <ItemDescription>{item.research_info.date_created}</ItemDescription>
+                                                <ItemDescription>{item.created_at}</ItemDescription>
                                             </div>
                                         </ItemFooter>
                                     </a>

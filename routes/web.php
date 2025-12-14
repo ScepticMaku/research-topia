@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ResearchItemController;
+use App\Models\ResearchItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,9 +19,18 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    /*
     Route::get('research-items', function () {
-        return Inertia::render('research-items/index');
+        return Inertia::render('research-items/index', [
+            'researchItems' => ResearchItem::all()
+        ]);
     })->name('research-items');
+    */
+
+    Route::get('research-items', [HomeController::class, 'researchItems'])->name('research-items');
+
+    // Route::post('/fetch-metadata', [MetadataController::class, 'fetchMetadata'])->name('metadata.fetch');
 
     Route::resource('research-item', ResearchItemController::class);
 });

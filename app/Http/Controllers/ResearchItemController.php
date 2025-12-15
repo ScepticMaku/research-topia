@@ -63,8 +63,8 @@ class ResearchItemController extends Controller
     public function show(string $id)
     {
         //
-    }
 
+    }
     /**
      * Show the form for editing the specified resource.
      */
@@ -86,7 +86,8 @@ class ResearchItemController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Url::destroy($id);
+        return redirect()->route('research-items');
     }
 
     private function fetchMetadata(Request $request) {

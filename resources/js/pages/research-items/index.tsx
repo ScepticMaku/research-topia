@@ -1,12 +1,14 @@
 import AppLayout from '@/layouts/app-layout';
 import { Separator } from "@/components/ui/separator"
 import { type BreadcrumbItem } from '@/types';
-import { usePage, Head } from '@inertiajs/react';
+import { useForm, usePage, Head } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -76,11 +78,25 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Index({ researchItems }: any) {
 
-    console.log(researchItems);
+    const { delete: destroy } = useForm();
 
-    const items = researchItems ? researchItems : [];
+    const handleDelete = (id: number) => {
+        destroy(route('research-item.destroy', id));
+    }
 
-    if (items.length == 0) {
+    function formatTimestamp(timestamp: string): string {
+        return new Date(timestamp).toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    function extractDomain(url: string): string {
+        return url.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/.*$/, '');
+    }
+
+    if (researchItems.length == 0) {
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="All Research Items" />
@@ -101,7 +117,7 @@ export default function Index({ researchItems }: any) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="All Research Items" />
             <div className="grid h-full">
-                {items.map(item =>
+                {researchItems.map((item: any) =>
                     <div className="m-2">
                         <ContextMenu>
                             <ContextMenuTrigger>
@@ -203,20 +219,56 @@ export default function Index({ researchItems }: any) {
                                                         <SheetDescription>Saved (Date & Time)</SheetDescription>
                                                     </div>
                                                     <SheetFooter>
-                                                        <Button variant="secondary"><Star /> Add to favorites</Button>
-                                                        <Button variant="destructive">Delete</Button>
+                                                        <Button variant="secondary" className="cursor-pointer"><Star /> Add to favorites</Button>
+                                                        <Dialog>
+                                                            <DialogTrigger>
+                                                                <Button className="w-full cursor-pointer" variant="destructive">Delete</Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent>
+                                                                <DialogHeader>
+                                                                    <DialogTitle>Confirm delete?</DialogTitle>
+                                                                    <DialogDescription>
+                                                                        Do you want to delete {item.url.title}? This action cannot be undone.
+                                                                    </DialogDescription>
+                                                                </DialogHeader>
+                                                                <DialogFooter>
+                                                                    <DialogClose>
+                                                                        <Button variant="secondary">No</Button>
+                                                                    </DialogClose>
+                                                                    <Button variant="destructive" onClick={() => handleDelete(item.id)}>Yes</Button>
+                                                                </DialogFooter>
+                                                            </DialogContent>
+                                                        </Dialog>
                                                     </SheetFooter>
                                                 </SheetContent>
                                             </Sheet>
-                                            <Button variant="ghost" className="cursor-pointer"><Trash2 className="size-5" /></Button>
+                                            <Dialog>
+                                                <DialogTrigger>
+                                                    <Button variant="ghost" className="cursor-pointer"><Trash2 className="size-5" /></Button>
+                                                </DialogTrigger>
+                                                <DialogContent>
+                                                    <DialogHeader>
+                                                        <DialogTitle>Confirm delete?</DialogTitle>
+                                                        <DialogDescription>
+                                                            Do you want to delete {item.url.title}? This action cannot be undone.
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <DialogFooter>
+                                                        <DialogClose>
+                                                            <Button className="cursor-pointer" variant="secondary">No</Button>
+                                                        </DialogClose>
+                                                        <Button className="cursor-pointer" variant="destructive" onClick={() => handleDelete(item.id)}>Yes</Button>
+                                                    </DialogFooter>
+                                                </DialogContent>
+                                            </Dialog>
                                         </div>
                                         <ItemFooter>
                                             <div className="flex h-2 items-center space-x-4 ">
                                                 <ItemDescription className="flex"><LibraryBig className="size-5 mr-2" />{item.category ? item.category.name : ''}</ItemDescription>
                                                 <Separator orientation="vertical" />
-                                                <ItemDescription>{item.url.url}</ItemDescription>
+                                                <ItemDescription>{extractDomain(item.url.url)}</ItemDescription>
                                                 <Separator orientation="vertical" />
-                                                <ItemDescription>{item.created_at}</ItemDescription>
+                                                <ItemDescription>{formatTimestamp(item.created_at)}</ItemDescription>
                                             </div>
                                         </ItemFooter>
                                     </a>

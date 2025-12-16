@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ResearchItemController;
 use App\Models\ResearchItem;
@@ -33,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::post('/fetch-metadata', [MetadataController::class, 'fetchMetadata'])->name('metadata.fetch');
 
     Route::resource('research-item', ResearchItemController::class);
+    Route::resource('category', CategoryController::class);
 });
 
 require __DIR__.'/settings.php';

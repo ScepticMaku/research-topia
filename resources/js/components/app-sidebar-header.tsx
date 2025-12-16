@@ -71,7 +71,7 @@ export function AppSidebarHeader({
                     <DialogContent>
                         <form onSubmit={submitUrl}>
                             <DialogHeader>
-                                <DialogTitle>Add a research item:</DialogTitle>
+                                <DialogTitle>Add a research item</DialogTitle>
                             </DialogHeader>
                             <div className="mt-4">
                                 <DialogDescription>URL:</DialogDescription>

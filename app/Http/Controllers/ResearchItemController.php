@@ -70,7 +70,7 @@ class ResearchItemController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        dd($id);
     }
 
     /**
@@ -78,7 +78,7 @@ class ResearchItemController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        dd($request, $id);
     }
 
     /**

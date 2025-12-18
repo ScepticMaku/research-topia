@@ -34,6 +34,10 @@ class ResearchItemController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'url' => 'required|url'
+        ]);
+
         $html = $this->fetchMetadata($request);
 
         $title = $this->extractTitle($html);

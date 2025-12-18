@@ -62,7 +62,19 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|unique:categories'
+        ]);
+
+        $category = Category::find($id);
+
+        $category->update([
+            'name' => $request->name
+        ]);
+
+        if($category) {
+            return redirect()->route('research-items');
+        }
     }
 
     /**

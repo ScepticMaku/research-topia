@@ -6,10 +6,22 @@ import {
     SheetFooter,
     SheetHeader,
 } from "@/components/ui/sheet"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { EllipsisVertical, Album, SquarePen, Trash2, Eye, FileX, LibraryBig, Search, Star, ChevronDown, Plus, BookmarkX, Save } from 'lucide-react';
+import { Trash2, EllipsisVertical, Album, LibraryBig, Search, Star, ChevronDown, Plus, BookmarkX, Save } from 'lucide-react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -43,10 +55,10 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty"
+import CategoryRenameForm from './category-rename-form';
 
 export default function ItemForm({ item, categories }: any) {
 
-    console.log(item);
     console.log(categories);
 
     const { data, setData, post, errors } = useForm({
@@ -57,27 +69,35 @@ export default function ItemForm({ item, categories }: any) {
         url: item.url.url,
     });
 
-    const [showRenameDialog, setShowRenameDialog] = useState(false);
-    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const { data: categoryData, setData: setCategoryData, post: postCategory, errors: categoryErrors } = useForm({
+        name: '',
+    });
 
-    const { delete: destroy } = useForm();
+    const [categoryToEdit, setCategoryToEdit] = useState<number | null>(null);
+    const [categoryToDelete, setCategoryToDelete] = useState<number>(0);
+    const [categoryName, setCategoryName] = useState<string | null>(null);
+
+    const [showRenameDialog, setShowRenameDialog] = useState(false);
+    const [showDeleteResearchItemDialog, setShowDeleteResearchItemDialog] = useState(false);
+    const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = useState(false);
+
+    const { delete: destroyResearchItem } = useForm();
+    const { delete: destroyCategory } = useForm();
 
     const handleDelete = (id: number) => {
-        destroy(route('research-item.destroy', id));
+        setShowDeleteResearchItemDialog(false);
+        destroyResearchItem(route('research-item.destroy', id));
     }
 
     const handleCategoryDelete = (id: number) => {
-        destroy(route('category.destroy', id));
+        setShowDeleteCategoryDialog(false);
+        destroyCategory(route('category.destroy', id));
     }
 
-    const handleCategoryNameSubmit = (e: React.FormEvent) => {
+    const handleCategorySubmit = (e: React.FormEvent) => {
         e.preventDefault();
         postCategory(route('category.store'));
-    }
-
-    const handleCategoryRename = (e: React.FormEvent) => {
-        e.preventDefault();
-        putCategory(route('category.update'));
+        categoryData.name = '';
     }
 
     function formatTimestamp(timestamp: string): string {
@@ -114,7 +134,7 @@ export default function ItemForm({ item, categories }: any) {
                     <SheetDescription>Category</SheetDescription>
                     <Dialog>
                         <DialogTrigger>
-                            <Button variant="outline" className="w-[161px] cursor-pointer flex justify-between">{data.category} <ChevronDown /></Button>
+                            <Button type="button" variant="outline" className="w-[161px] cursor-pointer flex justify-between">{data.category} <ChevronDown /></Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
@@ -137,7 +157,7 @@ export default function ItemForm({ item, categories }: any) {
                                             <Button size="sm" className="cursor-pointer"><Plus />Add</Button>
                                         </DialogTrigger>
                                         <DialogContent>
-                                            <form onSubmit={handleCategoryNameSubmit}>
+                                            <form onSubmit={handleCategorySubmit}>
                                                 <DialogHeader>
                                                     <DialogTitle>Add a category</DialogTitle>
                                                 </DialogHeader>
@@ -146,6 +166,7 @@ export default function ItemForm({ item, categories }: any) {
                                                     <Input className="mt-1"
                                                         type="text"
                                                         placeholder="e.g. Assignments"
+                                                        value={categoryData.name} onChange={(e) => setCategoryData('name', e.target.value)}
                                                     />
                                                 </div>
                                                 <Separator />
@@ -185,77 +206,70 @@ export default function ItemForm({ item, categories }: any) {
                                     </Item>
                                 )}
                                 <ItemDescription>Categories</ItemDescription>
-                                {categories.length > 1 && categories.slice(1).map((category: any) => (
-                                    <Item className="hover:bg-muted cursor-pointer">
-                                        <ItemMedia>
-                                            <Album className="size-5" />
-                                        </ItemMedia>
-                                        <ItemContent>
-                                            <ItemTitle>{category.name}</ItemTitle>
-                                        </ItemContent>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger>
-                                                <Button variant="ghost" size="sm" className="cursor-pointer hover:bg-primary" ><EllipsisVertical /></Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent>
-                                                <DropdownMenuItem onSelect={() => setShowRenameDialog(true)}>Rename</DropdownMenuItem>
-                                                <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)}>Delete</DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                        <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
-                                            <DialogContent>
-                                                <form onSubmit={handleCategoryNameSubmit}>
-                                                    <DialogHeader>
-                                                        <DialogTitle>Rename a category</DialogTitle>
-                                                    </DialogHeader>
-                                                    <div className="mt-4">
-                                                        <DialogDescription>Name:</DialogDescription>
-                                                        <Input className="mt-1"
-                                                            type="text"
-                                                            placeholder="e.g. Assignments"
-                                                        />
-                                                    </div>
-                                                    <Separator />
-                                                    <DialogFooter className="mt-4">
-                                                        <DialogClose asChild>
-                                                            <Button variant="outline">Cancel</Button>
-                                                        </DialogClose>
-                                                        <DialogClose asChild>
-                                                            <Button type="submit" className="cursor-pointer">Submit</Button>
-                                                        </DialogClose>
-                                                    </DialogFooter>
-                                                </form>
-                                            </DialogContent>
-                                        </Dialog>
-                                        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>Confirm delete?</DialogTitle>
-                                                    <DialogDescription>
-                                                        Do you want to delete {category.name}? This action cannot be undone.
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                                <DialogFooter>
-                                                    <DialogClose>
-                                                        <Button variant="secondary" onClick={() => setShowDeleteDialog(false)}>No</Button>
-                                                    </DialogClose>
-                                                    <Button variant="destructive" onClick={() => handleCategoryDelete(category.id)}>Yes</Button>
-                                                </DialogFooter>
-                                            </DialogContent>
-                                        </Dialog>
-                                    </Item>
-                                ))}
-                                {(categories.length == 1) && (
-                                    <Empty>
-                                        <EmptyHeader>
-                                            <EmptyMedia variant="icon">
-                                                <BookmarkX />
-                                            </EmptyMedia>
-                                            <EmptyTitle>Categories Empty</EmptyTitle>
-                                            <EmptyDescription>No categories found</EmptyDescription>
-                                        </EmptyHeader>
-                                    </Empty>
-                                )}
+                                <ScrollArea className="h-100">
+                                    {categories.length > 1 && categories.slice(1).map((category: any) => (
+                                        <Item className="hover:bg-muted cursor-pointer">
+                                            <ItemMedia>
+                                                <Album className="size-5" />
+                                            </ItemMedia>
+                                            <ItemContent>
+                                                <ItemTitle>{category.name}</ItemTitle>
+                                            </ItemContent>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger>
+                                                    <Button type="button" variant="ghost" size="sm" className="cursor-pointer hover:bg-primary"><EllipsisVertical /></Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent>
+                                                    <DropdownMenuItem onSelect={() => {
+                                                        setShowRenameDialog(true);
+                                                        setCategoryToEdit(category.id);
+                                                    }}>
+                                                        Rename</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => {
+                                                        setShowDeleteCategoryDialog(true);
+                                                        setCategoryToDelete(category.id);
+                                                        setCategoryName(category.name);
+                                                    }}>
+                                                        Delete</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                            <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
+                                                <DialogContent>
+                                                    <CategoryRenameForm category={categories.find((c => c.id == categoryToEdit))} />
+                                                </DialogContent>
+                                            </Dialog>
+                                            <AlertDialog open={showDeleteCategoryDialog} onOpenChange={setShowDeleteCategoryDialog}>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Confirm delete?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Do you want to delete {categoryName}? This action cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel className="cursor-pointer">
+                                                            No
+                                                        </AlertDialogCancel>
+                                                        <AlertDialogAction className="cursor-pointer" onClick={() => handleCategoryDelete(categoryToDelete)}>
+                                                            Yes
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </Item>
+                                    ))}
+                                    {(categories.length == 1) && (
+                                        <Empty>
+                                            <EmptyHeader>
+                                                <EmptyMedia variant="icon">
+                                                    <BookmarkX />
+                                                </EmptyMedia>
+                                                <EmptyTitle>Categories Empty</EmptyTitle>
+                                                <EmptyDescription>No categories found</EmptyDescription>
+                                            </EmptyHeader>
+                                        </Empty>
+                                    )}
+                                </ScrollArea>
                             </DialogHeader>
                         </DialogContent>
                     </Dialog>
@@ -273,25 +287,25 @@ export default function ItemForm({ item, categories }: any) {
             <SheetFooter className="h-full flex">
                 <Button type="submit" className="w-full cursor-pointer"><Save /> Submit changes</Button>
                 <Button variant="secondary" className="cursor-pointer"><Star /> Add to favorites</Button>
-                <Dialog>
-                    <DialogTrigger>
-                        <Button className="w-full cursor-pointer" variant="destructive">Delete</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Confirm delete?</DialogTitle>
-                            <DialogDescription>
+                <Button type="button" className="w-full cursor-pointer" variant="destructive" onClick={() => setShowDeleteResearchItemDialog(true)}>Delete</Button>
+                <AlertDialog open={showDeleteResearchItemDialog} onOpenChange={setShowDeleteResearchItemDialog}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Confirm delete?</AlertDialogTitle>
+                            <AlertDialogDescription>
                                 Do you want to delete {item.url.title}? This action cannot be undone.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <DialogClose>
-                                <Button variant="secondary">No</Button>
-                            </DialogClose>
-                            <Button variant="destructive" onClick={() => handleDelete(item.id)}>Yes</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel className="cursor-pointer">
+                                No
+                            </AlertDialogCancel>
+                            <AlertDialogAction className="cursor-pointer" onClick={() => handleDelete(item.id)}>
+                                Yes
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </SheetFooter>
         </form>
     );

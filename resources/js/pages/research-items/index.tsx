@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Separator } from "@/components/ui/separator"
 import { type BreadcrumbItem } from '@/types';
-import { router, useForm, Head, Link } from '@inertiajs/react';
+import { useForm, Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -13,6 +13,17 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import {
     Item,
     ItemContent,
@@ -146,25 +157,27 @@ export default function Index({ researchItems, categories }: any) {
                                                     <ItemForm item={item} categories={categories} />
                                                 </SheetContent>
                                             </Sheet>
-                                            <Dialog>
-                                                <DialogTrigger>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger>
                                                     <Button variant="ghost" className="hover:bg-destructive cursor-pointer"><Trash2 className="size-5" /></Button>
-                                                </DialogTrigger>
-                                                <DialogContent>
-                                                    <DialogHeader>
-                                                        <DialogTitle>Confirm delete?</DialogTitle>
-                                                        <DialogDescription>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Confirm delete?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
                                                             Do you want to delete {item.url.title}? This action cannot be undone.
-                                                        </DialogDescription>
-                                                    </DialogHeader>
-                                                    <DialogFooter>
-                                                        <DialogClose>
-                                                            <Button className="cursor-pointer" variant="secondary">No</Button>
-                                                        </DialogClose>
-                                                        <Button className="cursor-pointer" variant="destructive" onClick={() => handleDelete(item.id)}>Yes</Button>
-                                                    </DialogFooter>
-                                                </DialogContent>
-                                            </Dialog>
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel className="cursor-pointer">
+                                                            No
+                                                        </AlertDialogCancel>
+                                                        <AlertDialogAction className="cursor-pointer" onClick={() => handleDelete(item.id)}>
+                                                            Yes
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
                                     </div>
                                 </Item>

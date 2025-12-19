@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Separator } from "@/components/ui/separator"
 import { type BreadcrumbItem } from '@/types';
-import { useForm, Head, Link } from '@inertiajs/react';
+import { useForm, Head, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -67,6 +67,8 @@ import {
 } from "@/components/ui/pagination"
 import { EllipsisVertical, Album, SquarePen, Trash2, Eye, FileX, LibraryBig, Search, Star, ChevronDown, Plus, BookmarkX, Save } from 'lucide-react';
 import ItemForm from '@/components/item-form';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -76,6 +78,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Index({ researchItems, categories }: any) {
+
+    const { flash } = usePage().props;
+
+    useEffect(() => {
+        if (flash.success) {
+            toast.success(flash.success);
+        }
+    }, [flash]);
 
     const { delete: destroy } = useForm();
 

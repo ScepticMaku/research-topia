@@ -59,7 +59,6 @@ import CategoryRenameForm from './category-rename-form';
 
 export default function ItemForm({ item, categories }: any) {
 
-    console.log(categories);
 
     const { data, setData, post, errors } = useForm({
         title: item.url.title,

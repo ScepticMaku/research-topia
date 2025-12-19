@@ -58,7 +58,7 @@ class ResearchItemController extends Controller
                 'user_id' => $userId,
             ]);
         });
-        return redirect()->route('research-items');
+        return redirect()->route('research-items')->with('success', 'Research item successfully added!');
     }
 
     /**

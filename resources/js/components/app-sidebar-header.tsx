@@ -77,12 +77,12 @@ export function AppSidebarHeader({
                             </DialogHeader>
                             <div className="mt-4">
                                 <DialogDescription>URL:</DialogDescription>
-                                <Input className="mt-1"
+                                <Input className="mt-1 "
                                     type="text"
                                     placeholder="https://"
                                     value={data.url} onChange={(e) => setData('url', e.target.value)}
                                 />
-                                <InputError
+                                <InputError className="mt-2 mb-2"
                                     message={errors.url}
                                 />
                             </div>

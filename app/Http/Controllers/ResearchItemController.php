@@ -44,7 +44,7 @@ class ResearchItemController extends Controller
         $description = $this->extractDescription($html);
         $requestUrl = $request->url;
 
-        DB::transaction(function() use ($title, $description, $requestUrl) {
+        $researchItem = DB::transaction(function() use ($title, $description, $requestUrl) {
             $userId = Auth::user()->id;
 
             $url = Url::create([
@@ -58,7 +58,11 @@ class ResearchItemController extends Controller
                 'user_id' => $userId,
             ]);
         });
-        return redirect()->route('research-items')->with('success', 'Research item successfully added!');
+
+        if($researchItem) {
+            return redirect()->route('research-items')->with('success', 'Research item successfully added!');
+        }
+        return redirect()->route('research-items')->with('error', 'Research item failed to add.');
     }
 
     /**
@@ -82,7 +86,33 @@ class ResearchItemController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        dd($request, $id);
+        $researchItem = ResearchItem::with('url', 'user', 'tag', 'category')->find($id);
+        $url = Url::find($researchItem->url_id);
+
+        $request->validate([
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'note' => 'nullable|string',
+            'url' => 'required|url'
+        ]);
+
+        $researchItem = DB::transaction(function() use ($request, $researchItem, $url) {
+
+            $researchItem->update([
+                'note' => $request->note,
+            ]);
+
+            $url->update([
+                'title' => $request->title,
+                'description' => $request->description,
+                'url' => $request->url
+            ]);
+        });
+
+        if($researchItem) {
+            return redirect()->route('research-items')->with('success', 'Research item successfully updated!');
+        }
+        return redirect()->route('research-items')->with('error', 'Research item failed to update.');
     }
 
     /**
@@ -196,5 +226,33 @@ class ResearchItemController extends Controller
         }
 
         return $base.'/'.$url;
+    }
+
+    public function addFavorite(string $id) {
+        $researchItem = ResearchItem::find($id);
+
+        if(!$researchItem) {
+            return redirect()->route('research-items')->with('error', 'Failed to add to favorites.');
+        }
+
+        $researchItem->update([
+            'is_favorite' => 1
+        ]);
+
+        return redirect()->route('research-items');
+    }
+
+    public function removeFavorite(string $id) {
+        $researchItem = ResearchItem::find($id);
+
+        if(!$researchItem) {
+            return redirect()->route('research-items')->with('error', 'Failed to remove from favorites.');
+        }
+
+        $researchItem->update([
+            'is_favorite' => 0
+        ]);
+
+        return redirect()->route('research-items');
     }
 }

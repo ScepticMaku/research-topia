@@ -29,8 +29,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('research-items');
     */
 
+
     Route::get('research-items', [HomeController::class, 'researchItems'])->name('research-items');
 
+    Route::put('/research-item/{id}/remove-favorite', [ResearchItemController::class, 'removeFavorite'])->name('research-item.removeFavorite');
+    Route::put('/research-item/{id}/add-favorite', [ResearchItemController::class, 'addFavorite'])->name('research-item.addFavorite');
     // Route::post('/fetch-metadata', [MetadataController::class, 'fetchMetadata'])->name('metadata.fetch');
 
     Route::resource('research-item', ResearchItemController::class);

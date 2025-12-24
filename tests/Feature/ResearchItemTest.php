@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Category;
 use App\Models\ResearchItem;
 use App\Models\User;
 
@@ -56,8 +57,8 @@ test('can set to favorites if unfavorited', function() {
     $user = User::factory()->create();
     $researchItem = ResearchItem::factory()->create();
 
-    $response = $this->actingAs($user)->put(route('research-item.setFavorite', $researchItem->id), [
-        'set_favorite' => '0'
+    $response = $this->actingAs($user)->put(route('research-item.addFavorite', $researchItem->id), [
+        'set_favorite' => '1'
     ]);
 
     $response->assertRedirect(route('research-items'));
@@ -67,8 +68,20 @@ test('can set to unfavorites if favorited', function() {
     $user = User::factory()->create();
     $researchItem = ResearchItem::factory()->create();
 
-    $response = $this->actingAs($user)->put(route('research-item.setFavorite', $researchItem->id), [
-        'set_favorite' => '1'
+    $response = $this->actingAs($user)->put(route('research-item.removeFavorite', $researchItem->id), [
+        'set_favorite' => '0'
+    ]);
+
+    $response->assertRedirect(route('research-items'));
+});
+
+test('can change category', function() {
+    $user = User::factory()->create();
+    $researchItem = ResearchItem::factory()->create();
+    $category = Category::factory()->create();
+
+    $response = $this->actingAs($user)->put(route('research-item.selectCategory', $researchItem->id), [
+        'category_id' => $category->id,
     ]);
 
     $response->assertRedirect(route('research-items'));

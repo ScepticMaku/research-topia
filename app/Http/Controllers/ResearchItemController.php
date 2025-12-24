@@ -232,7 +232,7 @@ class ResearchItemController extends Controller
         $researchItem = ResearchItem::find($id);
 
         if(!$researchItem) {
-            return redirect()->route('research-items')->with('error', 'Failed to add to favorites.');
+            return redirect()->route('research-items')->with('error', 'Research item not found.');
         }
 
         $researchItem->update([
@@ -246,11 +246,27 @@ class ResearchItemController extends Controller
         $researchItem = ResearchItem::find($id);
 
         if(!$researchItem) {
-            return redirect()->route('research-items')->with('error', 'Failed to remove from favorites.');
+            return redirect()->route('research-items')->with('error', 'Research item not found.');
         }
 
         $researchItem->update([
             'is_favorite' => 0
+        ]);
+
+        return redirect()->route('research-items');
+    }
+
+    public function selectCategory(Request $request, string $id) {
+        $researchItemId = $request->id;
+        $categoryId = $id;
+        $researchItem = ResearchItem::find($researchItemId);
+
+        if(!$researchItem) {
+            return redirect()->route('research-items')->with('error', 'Research item not found.');
+        }
+
+        $researchItem->update([
+            'category_id' => $categoryId
         ]);
 
         return redirect()->route('research-items');

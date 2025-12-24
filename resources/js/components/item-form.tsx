@@ -62,6 +62,7 @@ export default function ItemForm({ item, categories }: any) {
 
 
     const { data, setData, put, errors } = useForm({
+        id: item.id,
         title: item.url.title,
         description: item.url.description,
         note: item.note,
@@ -75,8 +76,6 @@ export default function ItemForm({ item, categories }: any) {
 
     const { put: putFavorite } = useForm();
 
-    console.log(item.is_favorite);
-
     const [categoryToEdit, setCategoryToEdit] = useState<number | null>(null);
     const [categoryToDelete, setCategoryToDelete] = useState<number>(0);
     const [categoryName, setCategoryName] = useState<string | null>(null);
@@ -84,6 +83,7 @@ export default function ItemForm({ item, categories }: any) {
     const [showRenameDialog, setShowRenameDialog] = useState(false);
     const [showDeleteResearchItemDialog, setShowDeleteResearchItemDialog] = useState(false);
     const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = useState(false);
+    const [showCategoryDialog, setShowCategoryDialog] = useState(false);
 
     const { delete: destroyResearchItem } = useForm();
     const { delete: destroyCategory } = useForm();
@@ -115,6 +115,11 @@ export default function ItemForm({ item, categories }: any) {
         e.preventDefault();
         postCategory(route('category.store'));
         categoryData.name = '';
+    }
+
+    const handleCategorySelect = (id: number) => {
+        setShowCategoryDialog(false);
+        put(route('research-item.selectCategory', id));
     }
 
     function formatTimestamp(timestamp: string): string {
@@ -152,7 +157,7 @@ export default function ItemForm({ item, categories }: any) {
                 </div>
                 <div>
                     <SheetDescription>Category</SheetDescription>
-                    <Dialog>
+                    <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
                         <DialogTrigger>
                             <Button type="button" variant="outline" className="w-[161px] cursor-pointer flex justify-between">{data.category} <ChevronDown /></Button>
                         </DialogTrigger>
@@ -204,31 +209,19 @@ export default function ItemForm({ item, categories }: any) {
                                     <div>
                                     </div>
                                 </div>
-                                {(item.category_id) == 1 && (
-                                    <Item className="hover:bg-muted cursor-pointer" variant="muted">
-                                        <ItemMedia>
-                                            <LibraryBig className="size-5" />
-                                        </ItemMedia>
-                                        <ItemContent>
-                                            <ItemTitle>Unsorted</ItemTitle>
-                                        </ItemContent>
+                                <Item className='m-2 hover:bg-muted cursor-pointer' variant={`${item.category_id == 1 ? 'muted' : 'default'}`} onClick={() => handleCategorySelect(1)}>
+                                    <ItemMedia>
+                                        <LibraryBig className="size-5" />
+                                    </ItemMedia>
+                                    <ItemContent>
+                                        <ItemTitle>Unsorted</ItemTitle>
+                                    </ItemContent>
 
-                                    </Item>
-                                )}
-                                {(item.category_id) != 1 && (
-                                    <Item className="hover:bg-muted cursor-pointer" >
-                                        <ItemMedia>
-                                            <LibraryBig className="size-5" />
-                                        </ItemMedia>
-                                        <ItemContent>
-                                            <ItemTitle>Unsorted</ItemTitle>
-                                        </ItemContent>
-                                    </Item>
-                                )}
+                                </Item>
                                 <ItemDescription>Categories</ItemDescription>
                                 <ScrollArea className="h-100">
                                     {categories.length > 1 && categories.slice(1).map((category: any) => (
-                                        <Item className="hover:bg-muted cursor-pointer">
+                                        <Item className='m-2 hover:bg-muted cursor-pointer' variant={`${category.id == item.category_id ? 'muted' : 'default'}`} onClick={() => handleCategorySelect(category.id)}>
                                             <ItemMedia>
                                                 <Album className="size-5" />
                                             </ItemMedia>

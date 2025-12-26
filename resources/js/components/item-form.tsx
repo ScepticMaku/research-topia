@@ -57,9 +57,9 @@ import {
 } from "@/components/ui/empty"
 import InputError from './input-error';
 import CategoryRenameForm from './category-rename-form';
+import Categories from './categories';
 
 export default function ItemForm({ item, categories }: any) {
-
 
     const { data, setData, put, errors } = useForm({
         id: item.id,
@@ -76,14 +76,16 @@ export default function ItemForm({ item, categories }: any) {
 
     const { put: putFavorite } = useForm();
 
+    const [showDeleteResearchItemDialog, setShowDeleteResearchItemDialog] = useState(false);
     const [categoryToEdit, setCategoryToEdit] = useState<number | null>(null);
     const [categoryToDelete, setCategoryToDelete] = useState<number>(0);
     const [categoryName, setCategoryName] = useState<string | null>(null);
 
     const [showRenameDialog, setShowRenameDialog] = useState(false);
-    const [showDeleteResearchItemDialog, setShowDeleteResearchItemDialog] = useState(false);
     const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = useState(false);
     const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+
+    const [currentCategory, setCurrentCategory] = useState(data.category);
 
     const { delete: destroyResearchItem } = useForm();
     const { delete: destroyCategory } = useForm();
@@ -120,6 +122,11 @@ export default function ItemForm({ item, categories }: any) {
     const handleCategorySelect = (id: number) => {
         setShowCategoryDialog(false);
         put(route('research-item.selectCategory', id));
+    }
+
+    const handleCategoryChange = (newCategory: any) => {
+        setCurrentCategory(newCategory);
+        setShowCategoryDialog(false);
     }
 
     function formatTimestamp(timestamp: string): string {
@@ -159,131 +166,10 @@ export default function ItemForm({ item, categories }: any) {
                     <SheetDescription>Category</SheetDescription>
                     <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
                         <DialogTrigger>
-                            <Button type="button" variant="outline" className="w-[161px] cursor-pointer flex justify-between">{data.category} <ChevronDown /></Button>
+                            <Button type="button" variant="outline" className="w-[161px] cursor-pointer flex justify-between">{currentCategory} <ChevronDown /></Button>
                         </DialogTrigger>
                         <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Select Category</DialogTitle>
-                                <div className="mt-2 flex content-center gap-2">
-                                    <div className="w-full relative">
-                                        <Label htmlFor="search" className="sr-only">
-                                            Search
-                                        </Label>
-                                        <Input
-                                            id="search"
-                                            type="text"
-                                            placeholder="Type to search..."
-                                            className="h-8 pl-7"
-                                        />
-                                        <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
-                                    </div>
-                                    <Dialog>
-                                        <DialogTrigger>
-                                            <Button size="sm" className="cursor-pointer"><Plus />Add</Button>
-                                        </DialogTrigger>
-                                        <DialogContent>
-                                            <form onSubmit={handleCategorySubmit}>
-                                                <DialogHeader>
-                                                    <DialogTitle>Add a category</DialogTitle>
-                                                </DialogHeader>
-                                                <div className="mt-4">
-                                                    <DialogDescription>Name:</DialogDescription>
-                                                    <Input className="mt-1"
-                                                        type="text"
-                                                        placeholder="e.g. Assignments"
-                                                        value={categoryData.name} onChange={(e) => setCategoryData('name', e.target.value)}
-                                                    />
-                                                </div>
-                                                <Separator />
-                                                <DialogFooter className="mt-4">
-                                                    <DialogClose asChild>
-                                                        <Button variant="outline">Cancel</Button>
-                                                    </DialogClose>
-                                                    <DialogClose asChild>
-                                                        <Button type="submit" className="cursor-pointer">Submit</Button>
-                                                    </DialogClose>
-                                                </DialogFooter>
-                                            </form>
-                                        </DialogContent>
-                                    </Dialog>
-                                    <div>
-                                    </div>
-                                </div>
-                                <Item className='m-2 hover:bg-muted cursor-pointer' variant={`${item.category_id == 1 ? 'muted' : 'default'}`} onClick={() => handleCategorySelect(1)}>
-                                    <ItemMedia>
-                                        <LibraryBig className="size-5" />
-                                    </ItemMedia>
-                                    <ItemContent>
-                                        <ItemTitle>Unsorted</ItemTitle>
-                                    </ItemContent>
-
-                                </Item>
-                                <ItemDescription>Categories</ItemDescription>
-                                <ScrollArea className="h-100">
-                                    {categories.length > 1 && categories.slice(1).map((category: any) => (
-                                        <Item className='m-2 hover:bg-muted cursor-pointer' variant={`${category.id == item.category_id ? 'muted' : 'default'}`} onClick={() => handleCategorySelect(category.id)}>
-                                            <ItemMedia>
-                                                <Album className="size-5" />
-                                            </ItemMedia>
-                                            <ItemContent>
-                                                <ItemTitle>{category.name}</ItemTitle>
-                                            </ItemContent>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger>
-                                                    <Button type="button" variant="ghost" size="sm" className="cursor-pointer hover:bg-primary"><EllipsisVertical /></Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent>
-                                                    <DropdownMenuItem onSelect={() => {
-                                                        setShowRenameDialog(true);
-                                                        setCategoryToEdit(category.id);
-                                                    }}>
-                                                        Rename</DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => {
-                                                        setShowDeleteCategoryDialog(true);
-                                                        setCategoryToDelete(category.id);
-                                                        setCategoryName(category.name);
-                                                    }}>
-                                                        Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                            <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
-                                                <DialogContent>
-                                                    <CategoryRenameForm category={categories.find((c => c.id == categoryToEdit))} />
-                                                </DialogContent>
-                                            </Dialog>
-                                            <AlertDialog open={showDeleteCategoryDialog} onOpenChange={setShowDeleteCategoryDialog}>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Confirm delete?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            Do you want to delete {categoryName}? This action cannot be undone.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel className="cursor-pointer">
-                                                            No
-                                                        </AlertDialogCancel>
-                                                        <AlertDialogAction className="cursor-pointer" onClick={() => handleCategoryDelete(categoryToDelete)}>
-                                                            Yes
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </Item>
-                                    ))}
-                                    {(categories.length == 1) && (
-                                        <Empty>
-                                            <EmptyHeader>
-                                                <EmptyMedia variant="icon">
-                                                    <BookmarkX />
-                                                </EmptyMedia>
-                                                <EmptyTitle>Categories Empty</EmptyTitle>
-                                                <EmptyDescription>No categories found</EmptyDescription>
-                                            </EmptyHeader>
-                                        </Empty>
-                                    )}
-                                </ScrollArea>
-                            </DialogHeader>
+                            <Categories categories={categories} item={item} onCategoryChange={handleCategoryChange} />
                         </DialogContent>
                     </Dialog>
                 </div>

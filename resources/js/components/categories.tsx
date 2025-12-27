@@ -61,6 +61,7 @@ import CategoryRenameForm from './category-rename-form';
 
 export default function Categories({ categories, item, onCategoryChange }: any) {
 
+
     const { put } = useForm({
         id: item.id
     });
@@ -90,8 +91,14 @@ export default function Categories({ categories, item, onCategoryChange }: any) 
 
     const handleCategorySubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('Route being called:', route('category.store'));
+        console.log('Data being sent:', { name: categoryData.name });
+
+
         postCategory(route('category.store'));
         categoryData.name = '';
+
+
     }
 
     const handleCategorySelect = (id: number, name: string) => {

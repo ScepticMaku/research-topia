@@ -74,7 +74,7 @@ export default function ItemForm({ item, categories }: any) {
         name: '',
     });
 
-    const { put: putFavorite } = useForm();
+    const { post: postFavorite, processing: researchItemProcessing } = useForm();
 
     const [showDeleteResearchItemDialog, setShowDeleteResearchItemDialog] = useState(false);
     const [categoryToEdit, setCategoryToEdit] = useState<number | null>(null);
@@ -90,12 +90,12 @@ export default function ItemForm({ item, categories }: any) {
     const { delete: destroyResearchItem } = useForm();
     const { delete: destroyCategory } = useForm();
 
-    const addFavorite = (id: number) => {
-        putFavorite(route('research-item.addFavorite', id));
-    }
-
-    const removeFavorite = (id: number) => {
-        putFavorite(route('research-item.removeFavorite', id));
+    const toggleFavorite = (id: number) => {
+        postFavorite(route('research-item.toggleFavorite', id), {
+            onSuccess: () => {
+                console.log('toggle success');
+            }
+        });
     }
 
     const handleResearchItemSubmit = (e: React.FormEvent) => {
@@ -186,10 +186,10 @@ export default function ItemForm({ item, categories }: any) {
             <SheetFooter className="h-full flex">
                 <Button type="submit" className="w-full cursor-pointer"><Save /> Submit changes</Button>
                 {item.is_favorite == 0 && (
-                    <Button variant="secondary" className="cursor-pointer" onClick={() => addFavorite(item.id)}><Star /> Add to favorites</Button>
+                    <Button variant="secondary" className="cursor-pointer" onClick={() => toggleFavorite(item.id)} disabled={researchItemProcessing}><Star /> Add to favorites</Button>
                 )}
                 {item.is_favorite == 1 && (
-                    <Button variant="secondary" className="cursor-pointer" onClick={() => removeFavorite(item.id)}><StarOff /> Remove from favorites</Button>
+                    <Button variant="secondary" className="cursor-pointer" onClick={() => toggleFavorite(item.id)} disabled={researchItemProcessing}><StarOff /> Remove from favorites</Button>
                 )}
                 <Button type="button" className="w-full cursor-pointer" variant="destructive" onClick={() => setShowDeleteResearchItemDialog(true)}>Delete</Button>
                 <AlertDialog open={showDeleteResearchItemDialog} onOpenChange={setShowDeleteResearchItemDialog}>

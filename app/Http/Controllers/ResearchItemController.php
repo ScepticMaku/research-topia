@@ -228,7 +228,7 @@ class ResearchItemController extends Controller
         return $base.'/'.$url;
     }
 
-    public function addFavorite(string $id) {
+    public function toggleFavorite(string $id) {
         $researchItem = ResearchItem::find($id);
 
         if(!$researchItem) {
@@ -236,21 +236,7 @@ class ResearchItemController extends Controller
         }
 
         $researchItem->update([
-            'is_favorite' => 1
-        ]);
-
-        return redirect()->route('research-items');
-    }
-
-    public function removeFavorite(string $id) {
-        $researchItem = ResearchItem::find($id);
-
-        if(!$researchItem) {
-            return redirect()->route('research-items')->with('error', 'Research item not found.');
-        }
-
-        $researchItem->update([
-            'is_favorite' => 0
+            'is_favorite' => !$researchItem->is_favorite
         ]);
 
         return redirect()->route('research-items');

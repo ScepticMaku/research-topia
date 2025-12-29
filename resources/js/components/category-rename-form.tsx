@@ -17,7 +17,7 @@ export default function CategoryRenameForm({ category }: any) {
 
     console.log("id: ", category.id);
 
-    const { data, setData, put, errors } = useForm({
+    const { data, setData, put, errors, processing } = useForm({
         name: category.name,
     })
 
@@ -28,7 +28,7 @@ export default function CategoryRenameForm({ category }: any) {
     }
 
     return (
-        <form onSubmit={handleCategorySubmit}>
+        <form onSubmit={handleCategorySubmit} onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
                 <DialogTitle>Rename a category</DialogTitle>
             </DialogHeader>
@@ -46,7 +46,7 @@ export default function CategoryRenameForm({ category }: any) {
                     <Button variant="outline">Cancel</Button>
                 </DialogClose>
                 <DialogClose asChild>
-                    <Button type="submit" className="cursor-pointer">Submit</Button>
+                    <Button type="submit" className="cursor-pointer" disabled={processing}>Submit</Button>
                 </DialogClose>
             </DialogFooter>
         </form>

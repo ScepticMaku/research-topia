@@ -38,7 +38,7 @@ export function AppSidebarHeader({
     breadcrumbs?: BreadcrumbItemType[];
 }) {
 
-    const { data, setData, post, errors } = useForm({
+    const { data, setData, post, errors, processing } = useForm({
         url: '',
     })
 
@@ -96,7 +96,7 @@ export function AppSidebarHeader({
                                     <Button variant="outline">Cancel</Button>
                                 </DialogClose>
                                 <DialogClose asChild>
-                                    <Button type="submit" className="cursor-pointer">Submit</Button>
+                                    <Button type="submit" className="cursor-pointer" disabled={processing}>Submit</Button>
                                 </DialogClose>
                             </DialogFooter>
                         </form>

@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { Separator } from "@/components/ui/separator"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
     SheetDescription,
     SheetFooter,
@@ -56,49 +56,50 @@ import {
     EmptyTitle,
 } from "@/components/ui/empty"
 import InputError from './input-error';
-import CategoryRenameForm from './category-rename-form';
+import CategoryRenameForm from '@/components/category-rename-form';
 
 
-export default function Categories({ categories, item, onCategoryChange }: any) {
+export default function CategoryDialog({ categories, item, onCategoryChange }: any) {
 
+    const categoryList = categories.slice(1);
+
+    const [categoryToEdit, setCategoryToEdit] = useState<number | null>(null);
+    const [categoryToDelete, setCategoryToDelete] = useState<number>(0);
+    const [categoryName, setCategoryName] = useState<string | null>(null);
+    const [searchValue, setSearchValue] = useState<string | ''>('');
+    const [showRenameDialog, setShowRenameDialog] = useState(false);
+    const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = useState(false);
+    const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+
+    const { delete: destroyCategory, processing: categoryDeleteProcessing } = useForm({
+        id: item.id,
+    });
 
     const { put } = useForm({
         id: item.id
     });
 
-    const [categoryToEdit, setCategoryToEdit] = useState<number | null>(null);
-    const [categoryToDelete, setCategoryToDelete] = useState<number>(0);
-    const [categoryName, setCategoryName] = useState<string | null>(null);
-
-    const [showRenameDialog, setShowRenameDialog] = useState(false);
-    const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = useState(false);
-    const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-
-    const { data: categoryData, setData: setCategoryData, post: postCategory, errors: categoryErrors } = useForm({
+    const { data: categoryData, setData: setCategoryData, post: postCategory, errors: categoryErrors, processing: categoryProcessing } = useForm({
         name: '',
     });
 
-    const { delete: destroyCategory } = useForm();
+    const filteredCategoryList = categoryList.filter(category => category.name.toLowerCase().includes(searchValue.toLowerCase()));
 
-    const handleSelectCategory = (category: any) => {
-
+    const handleInputChange = (e: any) => {
+        const value = e.target.value;
+        setSearchValue(value);
     }
 
-    const handleCategoryDelete = (id: number) => {
+    const handleCategoryDelete = (id: number, e: any) => {
         setShowDeleteCategoryDialog(false);
         destroyCategory(route('category.destroy', id));
+        e.stopPropagation();
     }
 
     const handleCategorySubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Route being called:', route('category.store'));
-        console.log('Data being sent:', { name: categoryData.name });
-
-
         postCategory(route('category.store'));
         categoryData.name = '';
-
-
     }
 
     const handleCategorySelect = (id: number, name: string) => {
@@ -122,6 +123,7 @@ export default function Categories({ categories, item, onCategoryChange }: any) 
                         type="text"
                         placeholder="Type to search..."
                         className="h-8 pl-7"
+                        value={searchValue} onChange={handleInputChange}
                     />
                     <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
                 </div>
@@ -148,7 +150,7 @@ export default function Categories({ categories, item, onCategoryChange }: any) 
                                     <Button variant="outline">Cancel</Button>
                                 </DialogClose>
                                 <DialogClose asChild>
-                                    <Button type="submit" className="cursor-pointer">Submit</Button>
+                                    <Button type="submit" className="cursor-pointer" disabled={categoryProcessing}>Submit</Button>
                                 </DialogClose>
                             </DialogFooter>
                         </form>
@@ -168,7 +170,7 @@ export default function Categories({ categories, item, onCategoryChange }: any) 
             </Item>
             <ItemDescription>Categories</ItemDescription>
             <ScrollArea className="h-100">
-                {categories.length > 1 && categories.slice(1).map((category: any) => (
+                {categories.length > 1 && filteredCategoryList.map((category: any) => (
                     <Item className='m-2 hover:bg-muted cursor-pointer' variant={`${category.id == item.category_id ? 'muted' : 'default'}`} onClick={() => handleCategorySelect(category.id, category.name)}>
                         <ItemMedia>
                             <Album className="size-5" />
@@ -181,12 +183,14 @@ export default function Categories({ categories, item, onCategoryChange }: any) 
                                 <Button type="button" variant="ghost" size="sm" className="cursor-pointer hover:bg-primary"><EllipsisVertical /></Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                                <DropdownMenuItem onSelect={() => {
+                                <DropdownMenuItem onClick={(e) => {
                                     setShowRenameDialog(true);
                                     setCategoryToEdit(category.id);
+                                    e.stopPropagation();
                                 }}>
                                     Rename</DropdownMenuItem>
-                                <DropdownMenuItem onSelect={() => {
+                                <DropdownMenuItem onClick={(e) => {
+                                    e.stopPropagation();
                                     setShowDeleteCategoryDialog(true);
                                     setCategoryToDelete(category.id);
                                     setCategoryName(category.name);
@@ -211,7 +215,7 @@ export default function Categories({ categories, item, onCategoryChange }: any) 
                                     <AlertDialogCancel className="cursor-pointer">
                                         No
                                     </AlertDialogCancel>
-                                    <AlertDialogAction className="cursor-pointer" onClick={() => handleCategoryDelete(categoryToDelete)}>
+                                    <AlertDialogAction disabled={categoryDeleteProcessing} className="cursor-pointer" onClick={(e) => handleCategoryDelete(categoryToDelete, e)} >
                                         Yes
                                     </AlertDialogAction>
                                 </AlertDialogFooter>

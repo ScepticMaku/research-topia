@@ -21,15 +21,6 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    /*
-    Route::get('research-items', function () {
-        return Inertia::render('research-items/index', [
-            'researchItems' => ResearchItem::all()
-        ]);
-    })->name('research-items');
-    */
-
-
     Route::get('research-items', [HomeController::class, 'researchItems'])->name('research-items');
 
     Route::put('/research-item/{id}/select-category', [ResearchItemController::class, 'selectCategory'])->name('research-item.selectCategory');

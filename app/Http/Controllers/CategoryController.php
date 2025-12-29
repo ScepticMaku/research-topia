@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\ResearchItem;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CategoryController extends Controller
 {
@@ -80,9 +83,16 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
+        $researchItem = ResearchItem::with('category', 'url')->where('category_id', $id);
+
+            $researchItem->update([
+                'category_id' => 1
+            ]);
+
         Category::destroy($id);
+
         return redirect()->route('research-items');
     }
 }

@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { Separator } from "@/components/ui/separator"
 import { useState } from 'react'
 import {
@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { StarOff, Trash2, EllipsisVertical, Album, LibraryBig, Search, Star, ChevronDown, Plus, BookmarkX, Save } from 'lucide-react';
+import { StarOff, Trash2, EllipsisVertical, Album, LibraryBig, Search, Star, ChevronDown, Plus, BookmarkX, Save, PlusIcon, X } from 'lucide-react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -29,8 +29,15 @@ import {
 import { Button } from '@/components/ui/button';
 import InputError from './input-error';
 import CategoryDialog from '@/components/category-dialog';
+import { Badge } from './ui/badge';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
 
 export default function ItemForm({ item, categories }: any) {
+
 
     const { data: itemData, setData: setItemData, put: putItemData, errors: itemErrors, processing: itemProcessing } = useForm({
         id: item.id,
@@ -45,10 +52,16 @@ export default function ItemForm({ item, categories }: any) {
 
     const [showDeleteResearchItemDialog, setShowDeleteResearchItemDialog] = useState(false);
     const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+    const [showTagPopover, setShowTagPopover] = useState(false);
 
     const [currentCategory, setCurrentCategory] = useState(itemData.category);
 
     const { delete: destroyResearchItem } = useForm();
+
+    const { data: tagData, setData: setTagData, post: postTag, processing: processingTag, delete: destroyTag } = useForm({
+        research_item_id: item.id,
+        name: ''
+    });
 
     const toggleFavorite = (id: number) => {
         postFavorite(route('research-item.toggleFavorite', id));
@@ -67,6 +80,17 @@ export default function ItemForm({ item, categories }: any) {
     const handleCategoryChange = (newCategory: any) => {
         setCurrentCategory(newCategory);
         setShowCategoryDialog(false);
+    }
+
+    const handleTagSubmit = (e: any) => {
+        e.preventDefault();
+        postTag(route('research-item.addTag'));
+        setTagData('name', '');
+        setShowTagPopover(false);
+    }
+
+    const handleTagRemove = (id: number) => {
+        destroyTag(route('research-item.removeTag', id));
     }
 
     function formatTimestamp(timestamp: string): string {
@@ -109,7 +133,20 @@ export default function ItemForm({ item, categories }: any) {
                     </div>
                     <div>
                         <SheetDescription>Tags</SheetDescription>
-                        <Input className="mt-2" type="text" placeholder="Add tags..." />
+                        <div className="mt-2 gap-2 flex flex-wrap">
+                            {item.tag.map(tag => (
+                                <Badge>{tag.name} <span className="cursor-pointer" onClick={() => handleTagRemove(tag.id)} ><X size="13" /></span></Badge>
+                            ))}
+                            <Popover open={showTagPopover} onOpenChange={setShowTagPopover}>
+                                <PopoverTrigger>
+                                    <Badge variant="outline" className="cursor-pointer hover:bg-muted" onClick={() => setShowTagPopover(true)}><PlusIcon /></Badge>
+                                </PopoverTrigger>
+                                <PopoverContent className="flex gap-2">
+                                    <Input type="text" value={tagData.name} onChange={(e) => setTagData('name', e.target.value)} />
+                                    <Button type="button" className="cursor-pointer" onClick={(e) => handleTagSubmit(e)} disabled={processingTag}>Submit</Button>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                     </div>
                     <div>
                         <SheetDescription>URL</SheetDescription>
@@ -147,13 +184,10 @@ export default function ItemForm({ item, categories }: any) {
                 </SheetFooter>
             </form>
             <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
-                <DialogTrigger>
-                </DialogTrigger>
                 <DialogContent>
                     <CategoryDialog categories={categories} item={item} onCategoryChange={handleCategoryChange} />
                 </DialogContent>
             </Dialog>
-
         </div>
     );
 }

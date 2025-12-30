@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ResearchItemController;
+use App\Http\Controllers\TagController;
 use App\Models\ResearchItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -25,7 +26,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::put('/research-item/{id}/select-category', [ResearchItemController::class, 'selectCategory'])->name('research-item.selectCategory');
     Route::post('/research-item/{id}/toggle-favorite', [ResearchItemController::class, 'toggleFavorite'])->name('research-item.toggleFavorite');
+    Route::post('/research-item/add-tag', [TagController::class, 'addTag'])->name('research-item.addTag');
+    Route::delete('/research-item/{id}/remove-tag', [TagController::class, 'removeTag'])->name('research-item.removeTag');
     // Route::post('/fetch-metadata', [MetadataController::class, 'fetchMetadata'])->name('metadata.fetch');
+
 
     Route::resource('research-item', ResearchItemController::class);
     Route::resource('category', CategoryController::class);

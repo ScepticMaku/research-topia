@@ -4,8 +4,61 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "32367ce71f843035fd671aceff9cf7af",
+    "content-hash": "5024b2e74a457ca8dab2f06f0e1fe7fa",
     "packages": [
+        {
+            "name": "andreskrey/readability.php",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/andreskrey/readability.php.git",
+                "reference": "0d02e2916d1659bb79426969c5d48848ff402598"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/andreskrey/readability.php/zipball/0d02e2916d1659bb79426969c5d48848ff402598",
+                "reference": "0d02e2916d1659bb79426969c5d48848ff402598",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-mbstring": "*",
+                "ext-xml": "*",
+                "php": ">=5.6.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "andreskrey\\Readability\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Andres Rey",
+                    "email": "andreskrey@gmail.com",
+                    "role": "Lead Developer"
+                }
+            ],
+            "description": "A PHP port of Readability.js",
+            "homepage": "https://github.com/andreskrey/readability",
+            "keywords": [
+                "html",
+                "readability"
+            ],
+            "support": {
+                "issues": "https://github.com/andreskrey/readability.php/issues",
+                "source": "https://github.com/andreskrey/readability.php/tree/v1.0.0"
+            },
+            "abandoned": "fivefilters/readability.php",
+            "time": "2017-12-03T12:24:28+00:00"
+        },
         {
             "name": "bacon/bacon-qr-code",
             "version": "v3.0.3",
@@ -314,6 +367,71 @@
                 "source": "https://github.com/dflydev/dflydev-dot-access-data/tree/v3.0.3"
             },
             "time": "2024-07-08T12:26:09+00:00"
+        },
+        {
+            "name": "dietercoopman/laravel-showsql",
+            "version": "v1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dietercoopman/laravel-showsql.git",
+                "reference": "7a679d3c40f7cb0fee50d14c3e9fe02fb6aa35a6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dietercoopman/laravel-showsql/zipball/7a679d3c40f7cb0fee50d14c3e9fe02fb6aa35a6",
+                "reference": "7a679d3c40f7cb0fee50d14c3e9fe02fb6aa35a6",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^6|^7|^8|^9|^10.0|^11.0|^12.0",
+                "php": "^7.4|^8.0|^8.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.15|^8.0|^9.0|^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Dietercoopman\\Showsql\\ShowsqlServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Dietercoopman\\Showsql\\": "src",
+                    "Dietercoopman\\Showsql\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dieter Coopman",
+                    "email": "dieter@deltasolutions.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A Laravel package to output an sql as given to the database",
+            "homepage": "https://github.com/dietercoopman/showsql",
+            "keywords": [
+                "dietercoopman",
+                "laravel",
+                "showsql"
+            ],
+            "support": {
+                "issues": "https://github.com/dietercoopman/laravel-showsql/issues",
+                "source": "https://github.com/dietercoopman/laravel-showsql/tree/v1.6"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/dietercoopman",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-02-22T13:37:08+00:00"
         },
         {
             "name": "doctrine/inflector",

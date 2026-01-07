@@ -14,6 +14,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use andreskrey\Readability\Readability;
 use andreskrey\Readability\Configuration;
+use Illuminate\Support\Facades\Http;
 
 class ResearchItemController extends Controller
 {
@@ -43,13 +44,29 @@ class ResearchItemController extends Controller
         ]);
 
         $metadata = $this->fetchMetadata($request);
-        //$host = strtolower(parse_url($request->url, PHP_URL_HOST));
+        $requestUrl = $request->url;
+        //dd($metadata);
+        //$isArticle = $this->checkIfArticle($metadata['html']);
+        $checkCredibility = $this->credibilityChecker($metadata);
+        $isCredible = $checkCredibility['is_credible'];
+        $isDomainAllowed = $checkCredibility['is_domain_allowed'];
+        //$isResearchBased = $this->validateResearchContent($metadata);
         //dd($host);
-        dd($metadata);
 
-        if($metadata == 403) {
+        if($metadata['code'] == 403) {
             return redirect()->route('research-items')->with('error', 'Material access is forbidden.');
         }
+
+        /*
+        if(!$isArticle) {
+            return redirect()->route('research-items')->with('error', 'Material is not an article.');
+        }
+*/
+
+        if(!($isCredible || $isDomainAllowed)) {
+            return redirect()->route('research-items')->with('error', 'Material is not credible.');
+        }
+
 
         /*
         if(!$this->validateDomain($request->url)) {
@@ -57,13 +74,14 @@ class ResearchItemController extends Controller
         }
         */
 
-        if(!$this->validateResearchContent($metadata)) {
+        /*
+        if(!$isResearchBased) {
             return redirect()->route('research-items')->with('error', 'The material is not research-based');
         }
+        */
 
         $title = $metadata['title'];
         $description = $metadata['description'];
-        $requestUrl = $request->url;
 
         DB::transaction(function() use ($title, $description, $requestUrl) {
             $userId = Auth::user()->id;
@@ -170,17 +188,24 @@ class ResearchItemController extends Controller
                 'url' => $request->url,
                 'title' => $this->extractTitle($dom),
                 'description' => $this->extractDescription($dom),
-                'image' => $this->extractImage($dom, $request->url),
+                //'image' => $this->extractImage($dom, $request->url),
                 'content' => $this->extractContent($html),
                 'keywords' => $this->extractKeywords($dom),
                 'author' => $this->extractAuthor($dom),
-                'published_time' => $this->extractPublishedTime($dom)
+                'published_time' => $this->extractPublishedTime($dom),
+                'html' => $html,
+                'code' => 200
             ];
 
             return $metadata;
 
         } catch (\Exception $e) {
-            return $e->getCode();
+            return [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ];
         }
     }
 
@@ -204,6 +229,7 @@ class ResearchItemController extends Controller
         return $description;
     }
 
+    /*
     private function extractImage($dom, $baseUrl) {
         $image = '';
 
@@ -217,6 +243,7 @@ class ResearchItemController extends Controller
 
         return $image;
     }
+    */
 
     private function extractKeywords($dom) {
         $keywords = $this->getMetaContent($dom, 'keywords');
@@ -244,174 +271,18 @@ class ResearchItemController extends Controller
     }
 
     private function extractContent($html) {
-        $content = '';
+        try {
+            $content = '';
 
-        $readability = new Readability(new Configuration());
-        $readability->parse($html);
+            $readability = new Readability(new Configuration());
+            $readability->parse($html);
 
-        $content = $readability->getContent();
+            $content = $readability->getContent();
 
-        return $content;
-    }
-
-    /*
-    private function extractContent($html) {
-        $dom = new DOMDocument();
-        @$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
-        $xpath = new DOMXPath($dom);
-
-        $this->removeUnwantedElements($xpath);
-
-        $content = '';
-        $paragraphs = [];
-
-        $pElements = $xpath->query("//p[not(ancestor::header) and not(ancestor::footer) and not(ancestor::nav) and not(ancestor::aside)]");
-
-        foreach($pElements as $p) {
-            $text = trim($p->textContent);
-
-            if(strlen($text) < 20) continue;
-            if(preg_match('/copyright|©|all rights reserved|privacy policy|terms of service/i', $text)) continue;
-            if($this->isNavigationText($text)) continue;
-
-            $paragraphs[] = $text;
+            return $content;
+        } catch(\Exception $e) {
+            return $e->getMessage();
         }
-
-        if(count($paragraphs) >= 3) {
-            $content = implode("\n\n", $paragraphs);
-        }
-
-        if(empty($content)) {
-            $divs = $xpath->query("//div[not(ancestor::header) and not(ancester::footer) and not(ancestor::nav)]");
-
-            foreach($divs as $div) {
-                $text = trim($div->textContent);
-                $words = str_word_count($text);
-
-                if($words > 100 && $words < 5000) {
-                    $content = $text;
-                    break;
-                }
-            }
-        }
-
-        return $content ? $this->cleanText($content) : '';
-    }
-    */
-
-    /*
-    private function extractImage($html, Request $request) {
-        // Try Open Graph image
-        if (preg_match('/<meta[^>]*property=["\']og:image["\'][^>]*content=["\']([^"\']+)["\']/is', $html, $matches)) {
-            return $this->makeAbsoluteUrl(trim($matches[1]), $request->url);
-        }
-
-        // Try Twitter image
-        if (preg_match('/<meta[^>]*name=["\']twitter:image["\'][^>]*content=["\']([^"\']+)["\']/is', $html, $matches)) {
-            return $this->makeAbsoluteUrl(trim($matches[1]), $request->url);
-        }
-
-        return null;
-    }
-    */
-
-    private function removeUnwantedElements($xpath) {
-        $unwatedTags = [
-            'script', 'style', 'nav', 'header', 'footer',
-            'aside', 'form', 'iframe', 'noscript'
-        ];
-
-        foreach($unwatedTags as $tag) {
-            $elements = $xpath->query("//{$tag}");
-            foreach($elements as $element) {
-                $element->parentNode->removeChild($element);
-            }
-        }
-
-        $unwantedClasses = [
-            'social', 'share', 'advertisement', 'ad', 'sidebar', 'menu', 'navigation', 'banner', 'comments', 'related', 'popular', 'trending', 'newsletter', 'subscribe', 'footer', 'header'
-        ];
-
-        foreach($unwantedClasses as $class) {
-            $elements = $xpath->query("//*[contains(@class, '{$class}')]");
-            foreach($elements as $element) {
-                $element->parentNode->removeChild($element);
-            }
-        }
-    }
-
-    private function cleanText($text) {
-        $text = preg_replace('/\s+/', ' ', $text);
-        $text = trim($text);
-
-         $patterns = [
-            '/\b(?:share|tweet|like|follow|subscribe)\b/i',
-            '/\b(?:click here|read more|learn more)\b/i',
-            '/\b\d+\s*(?:comments|shares|likes)\b/i',
-            '/\b(?:advertisement|sponsored content|partner content)\b/i',
-        ];
-
-        foreach($patterns as $pattern) {
-            $text = preg_replace($pattern, '', $text);
-        }
-
-        return $text;
-    }
-
-    private function isNavigationText($text) {
-        $navigationWords = [
-            'home', 'about', 'contact', 'services', 'products',
-            'blog', 'news', 'login', 'register', 'sign up',
-            'search', 'categories', 'tags', 'archives'
-        ];
-
-        $text = strtolower($text);
-        foreach($navigationWords as $word) {
-            if(strpos($text, $word) !== false && strlen($text) < 50) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function validateDomain($url) {
-            $host = strtolower(parse_url($url, PHP_URL_HOST));
-
-            $allowedDomains = [
-                // Exact Matches
-                'researchgate.net',
-                'medium.com',
-                'arxiv.org',
-                'geeksforgeeks.org',
-
-                    // Wildcard
-                '*.geeksforgeeks.org',
-                '*.researchgate.net',
-                '*.medium.com',
-                '*.substack.com',
-                'github.com',
-                '*.gitlab.io',
-                'blog.*.com',
-                'news.*.com',
-                '*.edu',
-                '*.ac.*'
-            ];
-
-            foreach($allowedDomains as $pattern) {
-                if($this->matchesPattern($host, $pattern)) {
-                    return true;
-                }
-            }
-        return false;
-    }
-
-    private function matchesPattern($host, $pattern) {
-        $regex = str_replace('.', '\.', $pattern);
-        $regex = str_replace('*', '.*', $regex);
-        $regex = '/^' . $regex . '$/i';
-
-        return preg_match($regex, $host);
     }
 
     private function validateResearchContent($metadata) {
@@ -440,6 +311,7 @@ class ResearchItemController extends Controller
         return $keywordCount >= 2;
     }
 
+    /*
     private function makeAbsoluteUrl($url, $baseUrl) {
         if(filter_var($url, FILTER_VALIDATE_URL)){
             return $url;
@@ -452,6 +324,7 @@ class ResearchItemController extends Controller
 
         return $baseUrl . '/' . ltrim($url, '/');
     }
+    */
 
     public function toggleFavorite(string $id) {
         $researchItem = ResearchItem::find($id);
@@ -520,5 +393,174 @@ class ResearchItemController extends Controller
         }
 
         return true;
+    }
+
+    private function credibilityChecker($metadata) {
+        $url = $metadata['url'];
+        $parsedUrl = parse_url($url);
+        $domain = $parsedUrl['host'] ?? $url;
+        $isAllowed = false;
+
+        $allowedDomains = [
+            'geeksforgeeks', 'freecodecamp', 'dev.to'
+        ];
+
+        $checks = [
+            'has_ssl' => $this->checkSSL($url),
+            'safe_browsing' => $this->verifyBusinessInfo($domain),
+            'has_citation' => $this->hasCitationPatterns($metadata['content']),
+            'has_abstract' => $this->hasAbstractSection($metadata['content']),
+            'has_publication' => $this->hasPublicationDate($metadata['content']),
+            'has_references' => $this->hasReferences($metadata['html']),
+            'has_keywords' => $this->hasResearchKeywords($metadata['content']),
+        ];
+
+        $score = array_sum($checks) / count($checks) * 100;
+
+        foreach($allowedDomains as $allowedDomain) {
+            if(str_contains($domain, $allowedDomain)) {
+                $isAllowed = true;
+                break;
+            }
+        }
+
+        return [
+            'is_credible' => $score >= 70,
+            'is_domain_allowed' => $isAllowed
+        ];
+    }
+
+    private function checkSSL($url) {
+        try {
+            $response = Http::timeout(10)->get($url);
+            return $response->successful();
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function verifyBusinessInfo($domain) {
+        $apiKey = env('GOOGLE_SAFE_BROWSING_API_KEY');
+
+        $response = Http::post("https://safebrowsing.googleapis.com/v4/threatMatches:find?key={$apiKey}", [
+            "client" => [
+                "clientId" => "research-topia",
+                "clientVersion" => "1.0.0"
+            ],
+            "threatInfo" => [
+                "threatTypes" => ["MALWARE", "SOCIAL_ENGINEERING"],
+                "platformTypes" => ["WINDOWS"],
+                "threatEntries" => [["url" => $domain]]
+            ]
+        ]);
+
+        return empty($response->json());
+    }
+
+    private function hasCitationPatterns($content) {
+        $citationPatterns = [
+            '/\([A-Z][a-z]+,\s*\d{4}\)/i',  // (Smith, 2020)
+            '/\[[0-9]+(?:-[0-9]+)?\]/',     // [1] or [1-5]
+            '/et al\./i',                   // et al.
+            '/references?\s*:/i',           // Reference(s):
+            '/bibliography/i'
+        ];
+
+        $citationCount = 0;
+        foreach($citationPatterns as $pattern) {
+            $citationCount += preg_match_all($pattern, $content);
+        }
+
+        return  $citationCount > 3;
+    }
+
+    private function hasAbstractSection($content) {
+        $abstractPatterns = [
+            '/abstract/i',
+            '/summary\s*:/i',
+            '/executive\s+summary/i',
+        ];
+
+        foreach($abstractPatterns as $pattern) {
+            if(preg_match($pattern, $content)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasPublicationDate($content) {
+        $datePatterns = [
+            '/published:\s*(\d{1,2}\s+\w+\s+\d{4})/i',
+            '/date:\s*(\d{1,2}\s+\w+\s+\d{4})/i',
+            '/(?:©|copyright)\s*\d{4}/i',
+            '/\d{4}\s*-\s*\d{4}/', // Date ranges
+            '/volume\s+\d+/i',
+            '/issue\s+\d+/i'
+        ];
+
+        foreach($datePatterns as $pattern) {
+            if(preg_match($pattern, $content)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasReferences($html) {
+        $referencePatterns = [
+            '/<h[1-6][^>]*>.*?(?:reference|bibliography).*?<\/h[1-6]>/i',
+            '/<div[^>]*class=".*?(?:reference|bibliography).*?"[^>]*>/i',
+            '/<section[^>]*id=".*?(?:reference|bibliography).*?"[^>]*>/i'
+        ];
+
+        foreach($referencePatterns as $pattern) {
+            if(preg_match($pattern, $html)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasResearchKeywords($content) {
+         $researchKeywords = [
+            'research', 'study', 'publication', 'journal',
+            'academic', 'scholar', 'university', 'institute',
+            'laboratory', 'experiment', 'methodology',
+            'hypothesis', 'findings', 'conclusion', 'data analysis',
+            'peer-reviewed', 'citation', 'references', 'bibliography'
+        ];
+
+        foreach($researchKeywords as $keyword) {
+            if(str_contains($content, $keyword)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function checkIfArticle($html) {
+        try {
+            $text = strtolower(strip_tags($html));
+
+            $indicators = [
+                'word_count' => str_word_count($text) > 300,
+                'has_title' => preg_match('/<h1[^>]*>.*?<\/h1>/i', $html),
+                'has_author' => preg_match('/author|byline|writer|contributor/i', $html),
+                'has_date' => preg_match('/(published|posted|date|time).*?(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{4})/i', $html),
+                'has_paragraphs' => substr_count($html, '<p>') > 3,
+                'has_comments' => preg_match('/comment|discussion|response/i', $html)
+            ];
+
+            $trueCount = count(array_filter($indicators));
+
+            return $trueCount >= 5;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

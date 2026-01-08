@@ -69,6 +69,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Index({ researchItems, categories }: any) {
 
+    console.log(researchItems);
+
     const { flash } = usePage().props;
 
     useEffect(() => {
@@ -99,7 +101,7 @@ export default function Index({ researchItems, categories }: any) {
         return url.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/.*$/, '');
     }
 
-    if (researchItems.length == 0) {
+    if (researchItems.data.length == 0) {
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="All Research Items" />
@@ -120,7 +122,7 @@ export default function Index({ researchItems, categories }: any) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="All Research Items" />
             <div className="flex flex-col h-full">
-                {researchItems.map((item: any) =>
+                {researchItems.data.map((item: any) =>
                     <div className="m-2">
                         <ContextMenu>
                             <ContextMenuTrigger>
@@ -130,7 +132,9 @@ export default function Index({ researchItems, categories }: any) {
                                             <ItemHeader><strong>{item.url.title}</strong></ItemHeader>
                                             <ItemContent>
                                                 <ItemTitle>{item.note}</ItemTitle>
-                                                <ItemTitle>Tags Placeholder</ItemTitle>
+                                                {item.tag != null && item.tag.map(t => (
+                                                    <ItemTitle>{t.name}</ItemTitle>
+                                                ))}
                                             </ItemContent>
                                             <ItemFooter className="mt-4 w-full">
                                                 <div className="flex h-2 items-center space-x-4 ">
@@ -199,20 +203,35 @@ export default function Index({ researchItems, categories }: any) {
                     </div>
                 )}
             </div>
-            <small className="flex justify-center"># of Bookmarks</small>
+            {(researchItems.data.length == 1 && (
+                <small className="flex justify-center">{researchItems.data.length} Bookmark</small>
+            ))}
+            {(researchItems.data.length > 1 && (
+                <small className="flex justify-center">{researchItems.data.length} Bookmarks</small>
+            ))}
             <Pagination>
                 <PaginationContent>
                     <PaginationItem>
-                        <PaginationPrevious href="#" />
+                        <PaginationPrevious href={researchItems.prev_page_url} />
                     </PaginationItem>
+                    {(researchItems.current_page != 1 && (
+                        <PaginationItem>
+                            <PaginationLink href={researchItems.first_page_url}>1</PaginationLink>
+                        </PaginationItem>
+                    ))}
                     <PaginationItem>
-                        <PaginationLink href="#">1</PaginationLink>
+                        <PaginationLink>{researchItems.current_page}</PaginationLink>
                     </PaginationItem>
                     <PaginationItem>
                         <PaginationEllipsis />
                     </PaginationItem>
+                    {(researchItems.last_page != researchItems.current_page && (
+                        <PaginationItem>
+                            <PaginationLink href={researchItems.last_page_url}>{researchItems.last_page}</PaginationLink>
+                        </PaginationItem>
+                    ))}
                     <PaginationItem>
-                        <PaginationNext href="#" />
+                        <PaginationNext href={researchItems.next_page_url} />
                     </PaginationItem>
                 </PaginationContent>
             </Pagination>

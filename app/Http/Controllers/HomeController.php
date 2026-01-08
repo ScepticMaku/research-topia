@@ -13,7 +13,7 @@ class HomeController extends Controller
     public function researchItems() {
         $userId = Auth::user()->id;
         $categories = Category::get();
-        $researchItems = ResearchItem::with('user', 'category', 'url', 'tag')->where('user_id', $userId)->get();
+        $researchItems = ResearchItem::with('user', 'category', 'url', 'tag')->where('user_id', $userId)->paginate(5);
 
         return Inertia::render('research-items/index', [
             'researchItems' => $researchItems,
